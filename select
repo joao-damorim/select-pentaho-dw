@@ -1,14 +1,30 @@
-SELECT tab01.descricao_assunto, quantidade_resolvida, quantidade_total
+SELECT tab01.descricao_assunto, tab01.idsexo, tab01.idmanifestacao, tab01.idsituacao_manifestacao, tab01.iddata,tab01.idresposta, tab01.idregiao_adm, tab01.idassunto, tab01.idtema, tab01.idclassificacao, tab01.idunidade,tab01.idtipo_unidade, quantidade_resolvida, quantidade_total
 FROM (SELECT
 	   COALESCE(man.situacao_manifestacao_idsituacao_manifestacao, '0') AS situacao_manifestacao,
 	   COALESCE(a.idassunto, 0) AS idassunto,
 	   COALESCE(a.descricao, '0') AS descricao_assunto,
        COALESCE(sitman.idsituacao_manifestacao, 0) AS idsituacao_manifestacao,
        COALESCE(sitman.descricao, '0') AS descricao_situacao_manifestacao,
+	   COALESCE(t.idtema, '0') AS idtema,
+	   COALESCE(c.idclassificacao, 0) AS idclassificacao,
+	   COALESCE(u.idunidade, 0) AS idunidade,
+       COALESCE(tu.idtipo_unidade, 0) AS idtipo_unidade,
+       COALESCE(man.data_Abertura, 0) AS iddata,
+	   COALESCE(s.idsexo, 0) AS idsexo,
+	   COALESCE(radm.idregiao_administrativa, 0) AS idregiao_adm,
+       COALESCE(resp.idresposta, 0) AS idresposta,
+       COALESCE(man.idmanifestacao, 0) AS idmanifestacao,
 	   COUNT(*) AS quantidade_resolvida
 FROM situacao_manifestacao sitman
 INNER JOIN manifestacao man ON (sitman.idsituacao_manifestacao = man.situacao_manifestacao_idsituacao_manifestacao)
-INNER JOIN assunto a ON (a.idassunto = man.assunto_idassunto )
+INNER JOIN assunto a ON (a.idassunto = man.assunto_idassunto)
+INNER JOIN tema t ON (t.idtema = a.tema_idtema)
+INNER JOIN classificacao c ON (c.idclassificacao = man.classificacao_idclassificacao)
+INNER JOIN unidade u ON (u.idunidade = man.unidade_idunidade)
+INNER JOIN tipo_unidade tu ON (tu.idtipo_unidade = u.tipo_unidade_idtipo_unidade)
+INNER JOIN sexo s ON (s.idsexo = man.sexo_idsexo)
+INNER JOIN regiao_administrativa radm ON (radm.idregiao_administrativa = man.regiao_administrativa_idregiao_administrativa)
+INNER JOIN resposta resp ON (resp.manifestacao_idmanifestacao = man.idmanifestacao)
 WHERE sitman.descricao = "Resolvida"
 GROUP BY descricao_assunto) as tab01
 INNER JOIN
@@ -22,3 +38,4 @@ INNER JOIN assunto a ON (a.idassunto = man.assunto_idassunto )
 GROUP BY idassunto) as tab02
 ON (tab01.idassunto = tab02.idassunto)
 ;
+
